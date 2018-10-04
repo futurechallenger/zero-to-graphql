@@ -66,6 +66,14 @@ func CreateSchema() (*graphql.Schema, error) {
 			"allPeople": &graphql.Field{
 				Type: graphql.NewList(PersonType),
 			},
+			"friends": &graphql.Field{
+				Args: graphql.FieldConfigArgument{
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+				},
+				Type: graphql.NewList(PersonType),
+			},
 		},
 	})
 
