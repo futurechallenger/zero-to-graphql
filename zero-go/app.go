@@ -15,6 +15,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/graphql-go/graphql"
+
+	"zero-go/model"
+	"zero-go/schema"
 )
 
 func main() {
@@ -28,6 +31,8 @@ func main() {
 	// Routes
 	e.GET("/", hello)
 	e.GET("/people/:id", findPeople)
+
+	e.GET("/query/:query", executeQuery)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
@@ -49,10 +54,36 @@ func findPeople(c echo.Context) error {
 	return c.JSON(http.StatusOK, ret)
 }
 
+func executeQuery(c echo.Context) error {
+	query := c.Param("query")
+	result := executeGraphQL(query)
+	if result == nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"msg": "graphql error"})
+	}
+	fmt.Printf("query result: %v", result)
+	return c.JSON(http.StatusOK, map[string]string{"msg": "OK", "data": "data later"})
+}
+
+func executeGraphQL(query string) *graphql.Result {
+	if schema, err := schema.CreateSchema(); err == nil {
+		result := graphql.Do(graphql.Params{
+			Schema:        *schema,
+			RequestString: query,
+		})
+
+		if len(result.Errors) > 0 {
+			fmt.Printf("errors: %v", result.Errors)
+		}
+
+		return result
+	}
+	return nil
+}
+
 // Execute sql statement from parameter, which looks like this:
 // select a, b, c from some_tabble where id = ?
 // Return a map
-func executeSQL(sqlStmt string, personID string) ([]Person, error) {
+func executeSQL(sqlStmt string, personID string) ([]model.Person, error) {
 	db, err := sql.Open("sqlite3", "./db.sqlite3")
 	if err != nil {
 		log.Fatal(err)
@@ -72,9 +103,9 @@ func executeSQL(sqlStmt string, personID string) ([]Person, error) {
 		return nil, err
 	}
 
-	personList := make([]Person, 0)
+	personList := make([]model.Person, 0)
 	for ret.Next() {
-		var person Person
+		var person model.Person
 
 		var personID int64
 		var password sql.NullString
