@@ -13,6 +13,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/graphql-go/graphql"
 )
 
 func main() {
