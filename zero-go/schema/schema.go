@@ -3,6 +3,8 @@ package schema
 import (
 	"zero-go/model"
 
+	"log"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -65,6 +67,19 @@ func CreateSchema() (*graphql.Schema, error) {
 		Fields: graphql.Fields{
 			"allPeople": &graphql.Field{
 				Type: graphql.NewList(PersonType),
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					ch := make(chan string, 1)
+					go func() {
+						defer close(ch)
+						ret := GetAllPeople()
+						ch <- ret
+					}()
+
+					return func() (interface{}, error) {
+						r := <-ch
+						return r, nil
+					}, nil
+				},
 			},
 			"friends": &graphql.Field{
 				Args: graphql.FieldConfigArgument{
@@ -73,6 +88,25 @@ func CreateSchema() (*graphql.Schema, error) {
 					},
 				},
 				Type: graphql.NewList(PersonType),
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					personID, ok := params.Args["id"].(int64)
+					if !ok {
+						log.Fatalln("Can not get person ID")
+						return nil, nil
+					}
+
+					ch := make(chan string, 1)
+					go func() {
+						defer close(ch)
+						ret := GetFriends()
+						ch <- ret
+					}()
+
+					return func() (interface{}, error) {
+						r := <-ch
+						return r, nil
+					}, nil
+				},
 			},
 		},
 	})

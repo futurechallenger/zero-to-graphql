@@ -36,3 +36,8 @@ func GetAllPeople() string {
 func GetPerson(personID int64) string {
 	return GetJSONFromRelativeURL("/people/" + strconv.FormatInt(personID, 10))
 }
+
+// GetFriends will request a person's all friends
+func GetFriends(personID int64) string {
+	return //TODO: dataloader still needed in this situation
+}
