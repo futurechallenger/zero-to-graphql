@@ -8,6 +8,7 @@ import (
 
 	"database/sql"
 	"log"
+	"strings"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
@@ -30,7 +31,9 @@ func main() {
 
 	// Routes
 	e.GET("/", hello)
+	e.GET("/people/all", findAllPeople)
 	e.GET("/people/:id", findPeople)
+	e.GET("/friends/people/:id", findFriends)
 
 	e.GET("/query/:query", executeQuery)
 
@@ -48,6 +51,23 @@ func findPeople(c echo.Context) error {
 	personID := c.Param("id")
 
 	ret, err := executeSQL("select id,password,last_login,is_superuser,username,first_name,last_name,email,is_staff,is_active,date_joined from person where id = ?", personID)
+	if err != nil {
+		return c.JSON(http.StatusOK, map[string]string{"error": "Something went wrong when getting data from db"})
+	}
+	return c.JSON(http.StatusOK, ret)
+}
+
+func findAllPeople(c echo.Context) error {
+	ret, err := executeSQL("select id,password,last_login,is_superuser,username,first_name,last_name,email,is_staff,is_active,date_joined from person", "")
+	if err != nil {
+		return c.JSON(http.StatusOK, map[string]string{"error": "Something went wrong when getting data from db"})
+	}
+	return c.JSON(http.StatusOK, ret)
+}
+
+func findFriends(c echo.Context) error {
+	personID := c.Param("id")
+	ret, err := executeSQL("select p.id,p.password,p.last_login,p.is_superuser,p.username,p.first_name,p.last_name,p.email,p.is_staff,p.is_active,p.date_joined from person p left join person_friends pf on p.id = pf.to_person_id where pf.from_person_id = ?", personID)
 	if err != nil {
 		return c.JSON(http.StatusOK, map[string]string{"error": "Something went wrong when getting data from db"})
 	}
@@ -97,10 +117,19 @@ func executeSQL(sqlStmt string, personID string) ([]model.Person, error) {
 	}
 	defer stmt.Close()
 
-	ret, err := stmt.Query(personID)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
+	var ret *sql.Rows
+	if strings.Compare(personID, "")  == 0 {
+		ret, err = stmt.Query()
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+	} else {
+		ret, err = stmt.Query(personID)
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
 	}
 
 	personList := make([]model.Person, 0)
