@@ -98,7 +98,7 @@ func CreateSchema() (*graphql.Schema, error) {
 					ch := make(chan string, 1)
 					go func() {
 						defer close(ch)
-						ret := GetFriends()
+						ret := GetFriends(personID)
 						ch <- ret
 					}()
 
