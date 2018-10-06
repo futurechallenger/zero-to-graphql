@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	baseURL = "http://localhost:1321"
+	baseURL = "http://localhost:1323"
 )
 
 // GetJSONFromRelativeURL Get json from relative url
@@ -23,7 +23,7 @@ func GetJSONFromRelativeURL(relativeURL string) string {
 		log.Fatalln(err)
 	}
 
-	log.Println(body)
+	// log.Println(body)
 	return string(body[:])
 }
 
@@ -39,5 +39,5 @@ func GetPerson(personID int64) string {
 
 // GetFriends will request a person's all friends
 func GetFriends(personID int64) string {
-	return GetJSONFromRelativeURL("/people/friends/" + strconv.FormatInt(personID, 10))
+	return GetJSONFromRelativeURL("/friends/people/" + strconv.FormatInt(personID, 10))
 }

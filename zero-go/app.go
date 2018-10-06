@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -54,6 +53,8 @@ func findPeople(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusOK, map[string]string{"error": "Something went wrong when getting data from db"})
 	}
+
+	fmt.Println("request to find a person")
 	return c.JSON(http.StatusOK, ret)
 }
 
@@ -62,6 +63,7 @@ func findAllPeople(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusOK, map[string]string{"error": "Something went wrong when getting data from db"})
 	}
+	fmt.Println("reqeust all people")
 	return c.JSON(http.StatusOK, ret)
 }
 
@@ -71,6 +73,8 @@ func findFriends(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusOK, map[string]string{"error": "Something went wrong when getting data from db"})
 	}
+
+	fmt.Println("request to find all friends of a person")
 	return c.JSON(http.StatusOK, ret)
 }
 
@@ -80,8 +84,8 @@ func executeQuery(c echo.Context) error {
 	if result == nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"msg": "graphql error"})
 	}
-	fmt.Printf("query result: %v", result)
-	return c.JSON(http.StatusOK, map[string]string{"msg": "OK", "data": "data later"})
+	fmt.Printf("query result: %v\n", result)
+	return c.JSON(http.StatusOK, result)
 }
 
 func executeGraphQL(query string) *graphql.Result {
@@ -92,7 +96,7 @@ func executeGraphQL(query string) *graphql.Result {
 		})
 
 		if len(result.Errors) > 0 {
-			fmt.Printf("errors: %v", result.Errors)
+			fmt.Printf("\n errors: %v\n", result.Errors)
 		}
 
 		return result
@@ -190,12 +194,12 @@ func executeSQL(sqlStmt string, personID string) ([]model.Person, error) {
 		personList = append(personList, person)
 	}
 
-	j, err := json.Marshal(personList)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// _, err := json.Marshal(personList)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	fmt.Println(j)
+	// fmt.Println(j)
 
 	return personList, nil
 }
