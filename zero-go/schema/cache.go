@@ -3,7 +3,7 @@ package schema
 import (
 	"context"
 
-	"github.com/graph-gophers/dataloader"
+	"gopkg.in/nicksrandall/dataloader"
 	lru "github.com/hashicorp/golang-lru"
 )
 
@@ -40,4 +40,13 @@ func (c *Cache) Clear() {
 	c.ARCCache.Purge()
 }
 
-var Loader = dataloader.NewBatchedLoader(batchedFunc, dataloader.WithCache(Cache))
+var Loader = dataloader.NewBatchedLoader(batchFunc, dataloader.WithCache(Cache))
+
+func batchFunc(_ context.Context, keys dataloader.Keys) []*dataloader.Result {
+	var results []*dataloader.Result
+	// do some pretend work to resolve keys
+	for _, key := range keys {
+		results = append(results, &dataloader.Result{key.String(), nil})
+	}
+	return results
+}

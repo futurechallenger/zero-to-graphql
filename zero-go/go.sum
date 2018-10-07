@@ -21,8 +21,6 @@ github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs
 github.com/mattn/go-isatty v0.0.4/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/mattn/go-sqlite3 v1.9.0 h1:pDRiWfl+++eC2FEFRy6jXmQlvp4Yh3z1MJKg4UeYM/4=
 github.com/mattn/go-sqlite3 v1.9.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
-github.com/nicksrandall/dataloader v4.1.0+incompatible h1:+p5eEJXGaRlO5e4HAC/jZzEOQW1e2L3KopU5jxDbI+k=
-github.com/nicksrandall/dataloader v4.1.0+incompatible/go.mod h1:ffw+n6o2gnZpT4lkSLF6W1+aDf6WIHZwWcwLF3/jJSo=
 github.com/opentracing/opentracing-go v1.0.2 h1:3jA2P6O1F9UOrWVpwrIo17pu01KWvNWg4X946/Y5Zwg=
 github.com/opentracing/opentracing-go v1.0.2/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -42,3 +40,5 @@ golang.org/x/sys v0.0.0-20180928133829-e4b3c5e90611/go.mod h1:STP8DvDyc/dI5b8T5h
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 google.golang.org/appengine v1.2.0 h1:S0iUepdCWODXRvtE+gcRDd15L+k+k1AiHlMiMjefH24=
 google.golang.org/appengine v1.2.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
+gopkg.in/nicksrandall/dataloader.v5 v5.0.0-20180104184831-78139374585c h1:MUpS4ADJP4p5boSKm0NXut1F9gN9elmFsAQ+sycfez4=
+gopkg.in/nicksrandall/dataloader.v5 v5.0.0-20180104184831-78139374585c/go.mod h1:2Vt3nzGvh5+ohTHzpmvzRYfKYU0IRaxGNwZIWMLR/ps=
