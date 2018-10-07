@@ -3,8 +3,8 @@ package schema
 import (
 	"context"
 
-	"gopkg.in/nicksrandall/dataloader"
 	lru "github.com/hashicorp/golang-lru"
+	dataloader "gopkg.in/nicksrandall/dataloader.v5"
 )
 
 // Cache implements the dataloader.Cache interface
@@ -40,7 +40,11 @@ func (c *Cache) Clear() {
 	c.ARCCache.Purge()
 }
 
-var Loader = dataloader.NewBatchedLoader(batchFunc, dataloader.WithCache(Cache))
+var c, _ = lru.NewARC(100)
+var cache = &Cache{c}
+
+// Loader is a cached loader
+var Loader = dataloader.NewBatchedLoader(batchFunc, dataloader.WithCache(cache))
 
 func batchFunc(_ context.Context, keys dataloader.Keys) []*dataloader.Result {
 	var results []*dataloader.Result
