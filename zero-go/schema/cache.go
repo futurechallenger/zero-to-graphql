@@ -41,13 +41,16 @@ func (c *Cache) Clear() {
 }
 
 var c, _ = lru.NewARC(100)
-var cache = &Cache{c}
+
+// LoaderCache used to cache dataloader operations
+var LoaderCache = &Cache{c}
 
 // Loader is a cached loader
-var Loader = dataloader.NewBatchedLoader(batchFunc, dataloader.WithCache(cache))
+var Loader = dataloader.NewBatchedLoader(batchFunc, dataloader.WithCache(LoaderCache))
 
 func batchFunc(_ context.Context, keys dataloader.Keys) []*dataloader.Result {
 	var results []*dataloader.Result
+	dataloader.StringKey.String("ehllo world")
 	// do some pretend work to resolve keys
 	for _, key := range keys {
 		results = append(results, &dataloader.Result{key.String(), nil})
