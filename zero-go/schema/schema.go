@@ -3,11 +3,11 @@ package schema
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"zero-go/model"
 
 	"github.com/graphql-go/graphql"
+	dataloader "gopkg.in/nicksrandall/dataloader.v5"
 )
 
 // PersonType is graphql person type
@@ -95,30 +95,43 @@ func CreateSchema() (*graphql.Schema, error) {
 			"allPeople": &graphql.Field{
 				Type: graphql.NewList(PersonType),
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					var result ResolveRet
-					ch := make(chan *ResolveRet)
-					go func() {
-						defer close(ch)
-						ret := GetAllPeople()
+					// var result ResolveRet
+					// ch := make(chan *ResolveRet)
+					// go func() {
+					// 	defer close(ch)
+					// 	ret := GetAllPeople()
 
-						fmt.Printf("resolve all prople %v", ret)
+					// 	fmt.Printf("resolve all prople %v", ret)
 
-						// Deserialize
-						var personList []model.Person
-						err := json.Unmarshal([]byte(ret), &personList)
-						if err != nil {
-							result.data = nil
-							result.err = err
-						} else {
-							result.data = personList
-							result.err = nil
-						}
-						ch <- &result
-					}()
+					// 	// Deserialize
+					// 	var personList []model.Person
+					// 	err := json.Unmarshal([]byte(ret), &personList)
+					// 	if err != nil {
+					// 		result.data = nil
+					// 		result.err = err
+					// 	} else {
+					// 		result.data = personList
+					// 		result.err = nil
+					// 	}
+					// 	ch <- &result
+					// }()
 
-					return func() interface{} {
-						r := <-ch
-						return r.data
+					// return func() interface{} {
+					// 	r := <-ch
+					// 	return r.data
+					// }, nil
+
+					var (
+						v       = params.Context.Value
+						c       = v("client").(*Client)
+						loaders = v("loaders").(map[string]*dataloader.Loader)
+						key     = NewResolverKey("", c)
+					)
+
+					thunk := loaders["allPeopleLoader"].Load(params.Context, key)
+
+					return func() (interface{}, error) {
+						return thunk()
 					}, nil
 				},
 			},

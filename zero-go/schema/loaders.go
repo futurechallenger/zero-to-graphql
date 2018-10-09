@@ -151,11 +151,9 @@ func personBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Re
 	return results
 }
 
-// AllPeopleLoader used to batch people requests
-var AllPeopleLoader = dataloader.NewBatchedLoader(allPeopleBatchedFunc, dataloader.WithCache(LoaderCache))
-
-// FriendsLoader loads all friends of a person
-var FriendsLoader = dataloader.NewBatchedLoader(friendBatchedFunc, dataloader.WithCache(LoaderCache))
-
-// PersonLoader loads a person
-var PersonLoader = dataloader.NewBatchedLoader(personBatchedFunc, dataloader.WithCache(LoaderCache))
+// BatchedLoaders are loaders map
+var BatchedLoaders = map[string]*dataloader.Loader{
+	"allPeopleLoader": dataloader.NewBatchedLoader(allPeopleBatchedFunc, dataloader.WithCache(LoaderCache)),
+	"friendsLoader":   dataloader.NewBatchedLoader(friendBatchedFunc, dataloader.WithCache(LoaderCache)),
+	"personLoader":    dataloader.NewBatchedLoader(personBatchedFunc, dataloader.WithCache(LoaderCache)),
+}

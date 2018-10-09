@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"log"
 	"strings"
+	"context"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
@@ -18,6 +19,13 @@ import (
 
 	"zero-go/model"
 	"zero-go/schema"
+)
+
+type StrType string
+
+const (
+	LoadersKey StrType = "loaders"
+	ClientKey StrType = "client"
 )
 
 func main() {
@@ -89,8 +97,14 @@ func executeQuery(c echo.Context) error {
 }
 
 func executeGraphQL(query string) *graphql.Result {
+	var client = &schema.Client{}
+
+	ctx := context.WithValue(context.Background(), LoadersKey, schema.BatchedLoaders)
+	ctx = context.WithValue(ctx, ClientKey, client)
+
 	if schema, err := schema.CreateSchema(); err == nil {
 		result := graphql.Do(graphql.Params{
+			Context: ctx,
 			Schema:        *schema,
 			RequestString: query,
 		})
