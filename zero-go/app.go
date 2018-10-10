@@ -19,13 +19,7 @@ import (
 
 	"zero-go/model"
 	"zero-go/schema"
-)
-
-type StrType string
-
-const (
-	LoadersKey StrType = "loaders"
-	ClientKey StrType = "client"
+	"zero-go/util"
 )
 
 func main() {
@@ -99,8 +93,8 @@ func executeQuery(c echo.Context) error {
 func executeGraphQL(query string) *graphql.Result {
 	var client = &schema.Client{}
 
-	ctx := context.WithValue(context.Background(), LoadersKey, schema.BatchedLoaders)
-	ctx = context.WithValue(ctx, ClientKey, client)
+	ctx := context.WithValue(context.Background(), util.LoadersKey, schema.BatchedLoaders)
+	ctx = context.WithValue(ctx, util.ClientKey, client)
 
 	if schema, err := schema.CreateSchema(); err == nil {
 		result := graphql.Do(graphql.Params{
@@ -185,21 +179,21 @@ func executeSQL(sqlStmt string, personID string) ([]model.Person, error) {
 		}
 
 		person.ID = personID
-		person.Password = If(password.Valid, password.String, "").(string)
-		if tempTime, ok := If(lastLogin.Valid, lastLogin.Time, nil).(*time.Time); ok {
+		person.Password = util.If(password.Valid, password.String, "").(string)
+		if tempTime, ok := util.If(lastLogin.Valid, lastLogin.Time, nil).(*time.Time); ok {
 			person.LastLogin = tempTime
 		} else {
 			person.LastLogin = nil
 		}
 
-		person.IsSuperuser = If(isSuperuser.Valid, isSuperuser.Bool, false).(bool)
-		person.Username = If(userName.Valid, userName.String, "").(string)
-		person.FirstName = If(firstName.Valid, firstName.String, "").(string)
-		person.LastName = If(lastName.Valid, lastName.String, "").(string)
-		person.Email = If(email.Valid, email.String, "").(string)
-		person.IsStaff = If(isStaff.Valid, isStaff.Bool, false).(bool)
-		person.IsActive = If(isActive.Valid, isActive.Bool, false).(bool)
-		if tempTime, ok := If(dateJoined.Valid, dateJoined.Time, nil).(*time.Time); ok {
+		person.IsSuperuser = util.If(isSuperuser.Valid, isSuperuser.Bool, false).(bool)
+		person.Username = util.If(userName.Valid, userName.String, "").(string)
+		person.FirstName = util.If(firstName.Valid, firstName.String, "").(string)
+		person.LastName = util.If(lastName.Valid, lastName.String, "").(string)
+		person.Email = util.If(email.Valid, email.String, "").(string)
+		person.IsStaff = util.If(isStaff.Valid, isStaff.Bool, false).(bool)
+		person.IsActive = util.If(isActive.Valid, isActive.Bool, false).(bool)
+		if tempTime, ok := util.If(dateJoined.Valid, dateJoined.Time, nil).(*time.Time); ok {
 			person.DateJoined = tempTime
 		} else {
 			person.DateJoined = nil

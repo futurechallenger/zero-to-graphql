@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"zero-go/model"
+	"zero-go/util"
 
 	dataloader "gopkg.in/nicksrandall/dataloader.v5"
 )
@@ -80,6 +81,7 @@ func allPeopleBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader
 
 	personList, err := keys[0].(*ResolverKey).client().GetAllPeople()
 	if err != nil {
+		util.HandleError(err)
 		return handleError(err)
 	}
 
@@ -104,11 +106,13 @@ func friendBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Re
 
 	personID, err := strconv.ParseInt(keys[0].(*ResolverKey).String(), 10, 64)
 	if err != nil {
+		util.HandleError(err)
 		return handleError(err)
 	}
 
 	personList, err := keys[0].(*ResolverKey).client().GetFriends(personID)
 	if err != nil {
+		util.HandleError(err)
 		return handleError(err)
 	}
 
@@ -133,11 +137,13 @@ func personBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Re
 
 	personID, err := strconv.ParseInt(keys[0].(*ResolverKey).String(), 10, 64)
 	if err != nil {
+		util.HandleError(err)
 		return handleError(err)
 	}
 
 	person, err := keys[0].(*ResolverKey).client().GetPerson(personID)
 	if err != nil {
+		util.HandleError(err)
 		return handleError(err)
 	}
 

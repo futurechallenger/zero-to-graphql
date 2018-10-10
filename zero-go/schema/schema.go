@@ -3,8 +3,10 @@ package schema
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"zero-go/model"
+	"zero-go/util"
 
 	"github.com/graphql-go/graphql"
 	dataloader "gopkg.in/nicksrandall/dataloader.v5"
@@ -123,15 +125,18 @@ func CreateSchema() (*graphql.Schema, error) {
 
 					var (
 						v       = params.Context.Value
-						c       = v("client").(*Client)
-						loaders = v("loaders").(map[string]*dataloader.Loader)
+						c       = v(util.ClientKey).(*Client)
+						loaders = v(util.LoadersKey).(map[string]*dataloader.Loader)
 						key     = NewResolverKey("", c)
 					)
 
+					fmt.Printf("resolve p.Context.Value %+v\n", v("client"))
+
 					thunk := loaders["allPeopleLoader"].Load(params.Context, key)
 
-					return func() (interface{}, error) {
-						return thunk()
+					return func() interface{} {
+						ret, _ := thunk()
+						return ret
 					}, nil
 				},
 			},
