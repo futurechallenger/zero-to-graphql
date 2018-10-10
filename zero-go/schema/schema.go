@@ -127,7 +127,7 @@ func CreateSchema() (*graphql.Schema, error) {
 						v       = params.Context.Value
 						c       = v(util.ClientKey).(*Client)
 						loaders = v(util.LoadersKey).(map[string]*dataloader.Loader)
-						key     = NewResolverKey("", c)
+						key     = NewResolverKey("__all__", c)
 					)
 
 					fmt.Printf("resolve p.Context.Value %+v\n", v("client"))

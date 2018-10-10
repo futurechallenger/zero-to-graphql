@@ -23,6 +23,7 @@ import (
 )
 
 func main() {
+	util.ULog("start application")
 	// Echo instance
 	e := echo.New()
 

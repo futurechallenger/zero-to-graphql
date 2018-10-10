@@ -73,6 +73,8 @@ func (rk *ResolverKey) Raw() interface{} {
 }
 
 func allPeopleBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Result {
+	util.ULog(keys)
+
 	handleError := func(err error) []*dataloader.Result {
 		var results []*dataloader.Result
 		results = append(results, &dataloader.Result{Error: err})
@@ -86,18 +88,21 @@ func allPeopleBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader
 	}
 
 	var results []*dataloader.Result
-	for _, p := range personList {
-		result := &dataloader.Result{
-			Data:  p,
-			Error: nil,
-		}
-		results = append(results, result)
+	// for _, p := range personList {
+	// 	util.ULog(p.FirstName)
+
+	result := &dataloader.Result{
+		Data:  personList,
+		Error: nil,
 	}
+	results = append(results, result)
+	// }
 
 	return results
 }
 
 func friendBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Result {
+	util.ULog("start")
 	handleError := func(err error) []*dataloader.Result {
 		var results []*dataloader.Result
 		results = append(results, &dataloader.Result{Error: err})
@@ -129,6 +134,7 @@ func friendBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Re
 }
 
 func personBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Result {
+	util.ULog("start")
 	handleError := func(err error) []*dataloader.Result {
 		var results []*dataloader.Result
 		results = append(results, &dataloader.Result{Error: err})

@@ -29,6 +29,12 @@ func HandleError(err error) (b bool) {
 	return
 }
 
+// ULog for log messages and other code related stuff
+func ULog(msg interface{}) {
+	_, fn, line, _ := runtime.Caller(1)
+	log.Printf("[info] %s:%d %+v", fn, line, msg)
+}
+
 // NullTime represent a sqlite time which is nullable
 type NullTime struct {
 	Time  time.Time
