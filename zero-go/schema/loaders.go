@@ -27,24 +27,43 @@ func (c *Client) GetAllPeople() ([]model.Person, error) {
 }
 
 // GetPerson will request just a person
-func (c *Client) GetPerson(personID int64) (model.Person, error) {
+func (c *Client) GetPerson(personID int64) (*model.Person, error) {
 	ret := GetPerson(personID)
 
-	var person model.Person
+	var person []model.Person
 	err := json.Unmarshal([]byte(ret), &person)
 
-	return person, err
+	if err == nil && len(person) > 0 {
+		return &person[0], nil
+	}
+
+	return nil, err
 }
 
 // GetFriends will request a person's all friends
-func (c *Client) GetFriends(personID int64) ([]model.Person, error) {
-	ret := GetFriends(personID)
+func (c *Client) GetFriends(personIDs []int64) ([]*model.Person, error) {
+	// ret := GetFriends(personID)
 
-	// Deserialize
-	var personList []model.Person
-	err := json.Unmarshal([]byte(ret), &personList)
+	// // Deserialize
+	// var personList []model.Person
+	// err := json.Unmarshal([]byte(ret), &personList)
 
-	return personList, err
+	// return personList, err
+
+	util.ULog("Request friend start")
+	var personList []*model.Person
+
+	for _, personID := range personIDs {
+		p, err := c.GetPerson(personID)
+		if err != nil {
+			util.HandleError(err)
+			continue
+		}
+
+		personList = append(personList, p)
+	}
+
+	return personList, nil
 }
 
 // ResolverKey is a key for batched function
@@ -88,15 +107,12 @@ func allPeopleBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader
 	}
 
 	var results []*dataloader.Result
-	// for _, p := range personList {
-	// 	util.ULog(p.FirstName)
 
 	result := &dataloader.Result{
 		Data:  personList,
 		Error: nil,
 	}
 	results = append(results, result)
-	// }
 
 	return results
 }
@@ -109,13 +125,25 @@ func friendBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Re
 		return results
 	}
 
-	personID, err := strconv.ParseInt(keys[0].(*ResolverKey).String(), 10, 64)
-	if err != nil {
-		util.HandleError(err)
-		return handleError(err)
+	// personID, err := strconv.ParseInt(keys[0].(*ResolverKey).String(), 10, 64)
+	// if err != nil {
+	// 	util.HandleError(err)
+	// 	return handleError(err)
+	// }
+
+	var personIDs []int64
+
+	for _, key := range keys {
+		id, err := strconv.ParseInt(key.String(), 10, 64)
+		if err != nil {
+			util.ULog(err)
+			return handleError(err)
+		}
+
+		personIDs = append(personIDs, id)
 	}
 
-	personList, err := keys[0].(*ResolverKey).client().GetFriends(personID)
+	personList, err := keys[0].(*ResolverKey).client().GetFriends(personIDs)
 	if err != nil {
 		util.HandleError(err)
 		return handleError(err)
@@ -134,7 +162,7 @@ func friendBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Re
 }
 
 func personBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Result {
-	util.ULog("start")
+	util.ULog("start", keys)
 	handleError := func(err error) []*dataloader.Result {
 		var results []*dataloader.Result
 		results = append(results, &dataloader.Result{Error: err})

@@ -1,10 +1,9 @@
 package schema
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"sync"
 	"zero-go/model"
 	"zero-go/util"
 
@@ -41,7 +40,7 @@ var PersonType = graphql.NewObject(
 			"fullName": &graphql.Field{
 				Type: graphql.String,
 				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-					person, ok := params.Source.(model.Person)
+					person, ok := params.Source.(*model.Person)
 					if !ok {
 						return "", errors.New("No person found for resolving `fullName`")
 					}
@@ -60,30 +59,87 @@ func init() {
 		Type:        graphql.NewList(PersonType),
 		Description: "People who hang out with you",
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-			person, ok := params.Source.(model.Person)
-			var resolveRet ResolveRet
-			var friends []model.Person
+			// person, ok := params.Source.(model.Person)
+			// var resolveRet ResolveRet
+			// var friends []model.Person
 
-			if !ok {
-				log.Fatalln("Can not get person ID")
-				return nil, nil
+			// if !ok {
+			// 	log.Fatalln("Can not get person ID")
+			// 	return nil, nil
+			// }
+
+			// ch := make(chan *ResolveRet)
+			// go func() {
+			// 	defer close(ch)
+			// 	ret := GetFriends(person.ID)
+
+			// 	json.Unmarshal([]byte(ret), &friends)
+
+			// 	resolveRet.data = friends
+			// 	resolveRet.err = nil
+			// 	ch <- &resolveRet
+			// }()
+
+			// return func() interface{} {
+			// 	r := <-ch
+			// 	return r.data
+			// }, nil
+
+			var (
+				person, _ = params.Source.(model.Person)
+				v         = params.Context.Value
+				loaders   = v(util.LoadersKey).(map[string]*dataloader.Loader)
+				c         = v(util.ClientKey).(*Client)
+				thunks    []dataloader.Thunk
+				wg        sync.WaitGroup
+			)
+
+			for _, personID := range person.Friends {
+				key := NewResolverKey(fmt.Sprintf("%d", personID), c)
+				thunk := loaders["personLoader"].Load(params.Context, key)
+				thunks = append(thunks, thunk)
 			}
 
-			ch := make(chan *ResolveRet)
+			type result struct {
+				friends []*model.Person
+				errs    []error
+			}
+			// ch := make(chan *result, 1)
+			ch := make(chan *result)
+
 			go func() {
-				defer close(ch)
-				ret := GetFriends(person.ID)
+				var friends []*model.Person
+				var errs []error
+				for _, thunk := range thunks {
+					wg.Add(1)
+					go func(t dataloader.Thunk) {
+						defer wg.Done()
 
-				json.Unmarshal([]byte(ret), &friends)
+						r, err := t()
+						if err != nil {
+							errs = append(errs, err)
+							return
+						}
 
-				resolveRet.data = friends
-				resolveRet.err = nil
-				ch <- &resolveRet
+						p := r.(*model.Person)
+						friends = append(friends, p)
+					}(thunk)
+				}
+
+				wg.Wait()
+				ch <- &result{friends: friends, errs: errs}
 			}()
 
 			return func() interface{} {
-				r := <-ch
-				return r.data
+				ret := <-ch
+				errs := ret.errs
+				friends := ret.friends
+				if len(errs) > 0 {
+					util.HandleError(errs[len(errs)-1])
+					return errs
+				}
+
+				return friends
 			}, nil
 		},
 	})

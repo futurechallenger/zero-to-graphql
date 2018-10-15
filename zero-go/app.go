@@ -9,6 +9,7 @@ import (
 	"log"
 	"strings"
 	"context"
+	"strconv"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
@@ -200,15 +201,63 @@ func executeSQL(sqlStmt string, personID string) ([]model.Person, error) {
 			person.DateJoined = nil
 		}
 
+		// Get friends
+		friends, err := executeSQLString("select to_person_id from person_friends where from_person_id=?", 
+											strconv.FormatInt(personID, 10))
+		if err == nil {
+			person.Friends = friends
+		}
+
 		personList = append(personList, person)
 	}
 
-	// _, err := json.Marshal(personList)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// fmt.Println(j)
-
 	return personList, nil
+}
+
+func executeSQLString(sqlStmt string, personID string) ([]int64, error) {
+	db, err := sql.Open("sqlite3", "./db.sqlite3")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare(sqlStmt)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var ret *sql.Rows
+	if strings.Compare(personID, "")  == 0 {
+		ret, err = stmt.Query()
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+	} else {
+		ret, err = stmt.Query(personID)
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+	}
+
+	var friendIDs []int64
+	for ret.Next() {
+		var friendID sql.NullInt64
+
+		err = ret.Scan(&friendID)
+
+		if err != nil {
+			util.ULog(err)
+			return nil, err
+		}
+
+		if friendID.Valid {
+			friendIDs = append(friendIDs, friendID.Int64)
+		}
+	}
+
+	return friendIDs, nil
 }

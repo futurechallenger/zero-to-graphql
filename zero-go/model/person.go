@@ -28,4 +28,5 @@ type Person struct {
 	IsStaff     bool       `json:"is_staff"`
 	IsActive    bool       `json:"is_active"`
 	DateJoined  *time.Time `json:"date_joined"`
+	Friends     []int64    `json:"friends"`
 }

@@ -30,7 +30,7 @@ func HandleError(err error) (b bool) {
 }
 
 // ULog for log messages and other code related stuff
-func ULog(msg interface{}) {
+func ULog(msg ...interface{}) {
 	_, fn, line, _ := runtime.Caller(1)
 	log.Printf("[info] %s:%d %+v", fn, line, msg)
 }
