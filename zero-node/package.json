@@ -4,7 +4,9 @@
   "description": "An example of how to write a GraphQL schema that resolves data from a REST API",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node --presets es2015,stage-0 -- index.js",
+    "build": "babel src --out-dir .dist --source-maps --watch",
+    "start": "nodemon --exec babel-node -- index.js",
+    "debug": "babel-node --inspect-brk=9229 -- index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Steven Luscher",
