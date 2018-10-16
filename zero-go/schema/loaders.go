@@ -3,6 +3,7 @@ package schema
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strconv"
 
 	"zero-go/model"
@@ -169,24 +170,38 @@ func personBatchedFunc(c context.Context, keys dataloader.Keys) []*dataloader.Re
 		return results
 	}
 
-	personID, err := strconv.ParseInt(keys[0].(*ResolverKey).String(), 10, 64)
-	if err != nil {
-		util.HandleError(err)
-		return handleError(err)
+	var personIDs []int64
+	for _, pID := range keys {
+		personID, err := strconv.ParseInt(pID.(*ResolverKey).String(), 10, 64)
+		if err != nil {
+			util.HandleError(err)
+			return handleError(err)
+		}
+		personIDs = append(personIDs, personID)
 	}
 
-	person, err := keys[0].(*ResolverKey).client().GetPerson(personID)
-	if err != nil {
-		util.HandleError(err)
-		return handleError(err)
+	// person, err := keys[0].(*ResolverKey).client().GetPerson(personID)
+	getPersonFun := keys[0].(*ResolverKey).client().GetPerson
+
+	if getPersonFun == nil {
+		return handleError(errors.New("getPersonFun is not valid"))
 	}
 
 	var results []*dataloader.Result
-	result := &dataloader.Result{
-		Data:  person,
-		Error: nil,
+
+	for _, pID := range personIDs {
+		person, err := getPersonFun(pID)
+		if err != nil {
+			util.HandleError(err)
+			return handleError(err)
+		}
+
+		result := &dataloader.Result{
+			Data:  person,
+			Error: nil,
+		}
+		results = append(results, result)
 	}
-	results = append(results, result)
 
 	return results
 }
