@@ -104,8 +104,8 @@ func init() {
 				friends []*model.Person
 				errs    []error
 			}
-			// ch := make(chan *result, 1)
-			ch := make(chan *result)
+			ch := make(chan *result, 1)
+			// ch := make(chan *result)
 
 			go func() {
 				var friends []*model.Person
