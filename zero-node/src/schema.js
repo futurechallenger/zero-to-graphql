@@ -66,8 +66,10 @@ const PersonType = new GraphQLObjectType({
     friends: {
       type: new GraphQLList(PersonType),
       description: 'People who lent you money',
-      resolve: (obj, args, {loaders}) =>
-        loaders.person.loadManyByURL(obj.friends),
+      resolve: (obj, args, {loaders}) =>{
+        console.log('===>resove friends: ', obj);
+        loaders.person.loadManyByURL(obj.friends)
+      },
     },
   }),
   interfaces: [nodeInterface],

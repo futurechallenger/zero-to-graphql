@@ -21,7 +21,7 @@ function getPeople() {
 }
 
 function getPerson(id) {
-  return getPersonByURL(`/people/${id}/`);
+  return getPersonByURL(`/people/${id}`);
 }
 
 function getPersonByURL(relativeURL) {
@@ -46,7 +46,7 @@ app.use(graphqlHTTP(req => {
     new DataLoader(keys => Promise.all(keys.map(getPeople)), {cacheMap});
   const personLoader =
     new DataLoader(keys => Promise.all(keys.map(getPerson)), {
-      cacheKeyFn: key => `/people/${key}/`,
+      cacheKeyFn: key => `/people/${key}`,
       cacheMap,
     });
   const personByURLLoader =
