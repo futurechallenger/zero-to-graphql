@@ -104,7 +104,9 @@ func init() {
 				friends []*model.Person
 				errs    []error
 			}
-			ch := make(chan *result, 1)
+			ch := make(chan *result, 1) // Channel
+			// read	<- ch
+			// write ch <- something
 			// ch := make(chan *result)
 
 			go func() {
