@@ -4,7 +4,7 @@
   "description": "An example of how to write a GraphQL schema that resolves data from a REST API",
   "main": "index.js",
   "scripts": {
-    "build": "babel src --out-dir dist --source-maps --watch",
+    "build": "babel src --out-dir dist --source-maps",
     "start": "nodemon --exec node -- dist/index.js",
     "debug": "node --inspect-brk=9229 -- dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"

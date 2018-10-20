@@ -13,6 +13,8 @@ import {
   nodeDefinitions,
 } from 'graphql-relay';
 
+import { getPersonByURL } from './utils';
+
 const {
   nodeField,
   nodeInterface,
@@ -36,7 +38,12 @@ const PersonType = new GraphQLObjectType({
   name: 'Person',
   description: 'Somebody that you used to know',
   fields: () => ({
-    id: globalIdField('Person'),
+    // id: globalIdField('Person'),
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      description: 'ID of a person',
+      resolve: obj => obj.id  // Unncessary
+    },
     firstName: {
       type: GraphQLString,
       description: 'What you yell at me',
@@ -68,7 +75,8 @@ const PersonType = new GraphQLObjectType({
       description: 'People who lent you money',
       resolve: (obj, args, {loaders}) =>{
         console.log('===>resove friends: ', obj);
-        loaders.person.loadManyByURL(obj.friends)
+        return loaders.person.loadManyByURL(obj.friends)
+        // return obj.friends.map(getPersonByURL);
       },
     },
   }),

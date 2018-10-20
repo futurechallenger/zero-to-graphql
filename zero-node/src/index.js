@@ -1,42 +1,9 @@
 import DataLoader from 'dataloader';
 
 import express from 'express';
-import fetch from 'node-fetch';
 import graphqlHTTP from 'express-graphql';
 import schema from './schema';
-
-// const BASE_URL = 'http://localhost:8000';
-const BASE_URL = 'http://localhost:1323';
-
-function getJSONFromRelativeURL(relativeURL) {
-  return fetch(`${BASE_URL}${relativeURL}`)
-    .then(res => res.json());
-}
-
-function getPeople() {
-  return getJSONFromRelativeURL('/people/all')
-    .then(json => {
-      return json
-    });
-}
-
-function getPerson(id) {
-  return getPersonByURL(`/people/${id}`);
-}
-
-function getPersonByURL(relativeURL) {
-  let requestURL = relativeURL;
-  if(typeof relativeURL === 'number') {
-    requestURL = '/people/' + requestURL;
-  }
-  return getJSONFromRelativeURL(requestURL)
-    .then(json => {
-      console.log('===>getPersonByURL', json, requestURL);
-      if(typeof json === 'object' && json.length) {
-        return json[0];
-      }
-      return json});
-}
+import {getPeople, getPerson, getPersonByURL} from './utils';
 
 const app = express();
 
